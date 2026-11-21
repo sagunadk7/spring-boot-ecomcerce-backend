@@ -1,11 +1,12 @@
 package com.sagun.ecommerce_backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import com.sagun.ecommerce_backend.enums.Role;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,5 +28,10 @@ public class User extends BaseEntity {
     @Column(name = "password_hash",nullable = false)
     private String passwordHash;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name="user_roles",joinColumns = @JoinColumn(name="user_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role",nullable = false,length = 20)
+    private List<Role> roles = new ArrayList<>();
 
 }
