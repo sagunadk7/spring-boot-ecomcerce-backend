@@ -1,5 +1,7 @@
 package com.sagun.ecommerce_backend.utils;
 
+import com.sagun.ecommerce_backend.principal.UserPrincipal;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,26 @@ public class JWTUtils {
                     .signWith(key)
                     .subject(username)
                     .compact();
+        }
+
+        public Claims extractClaims(String token){
+            return Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        }
+
+        public String extractUsername(String token){
+            return extractClaims(token).getSubject();
+        }
+
+        public boolean isTokenExpired(String token){
+            return extractClaims(token).getExpiration().before(new Date());
+        }
+
+        public boolean isValidToken(String token, UserPrincipal principal,String username){
+            return principal.getUsername().equals(username) && !isTokenExpired(token);
         }
 
 }
