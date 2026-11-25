@@ -12,26 +12,23 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "users",
-uniqueConstraints = {@UniqueConstraint(name= "uk_users_email",columnNames = "email"),
+uniqueConstraints = {@UniqueConstraint(name= "uk_users_phone_number",columnNames = "phone_number"),
 @UniqueConstraint(name = "uk_users_username", columnNames = "username")})
 public class User extends BaseEntity {
 
     @Column(name = "user_name", nullable = false,length = 50)
     private String username;
 
-    @Column(name = "email",nullable = false)
-    private String email;
-
     @Column(name = "phone_number",nullable = false)
-    private int phoneNumber;
-
-    @Column(name = "password_hash",nullable = false)
-    private String passwordHash;
+    private String phoneNumber;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="user_roles",joinColumns = @JoinColumn(name="user_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "role",nullable = false,length = 20)
     private List<Role> roles = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
+    private LoginCode loginCode;
 
 }

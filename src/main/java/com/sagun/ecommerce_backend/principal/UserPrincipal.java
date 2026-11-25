@@ -12,20 +12,20 @@ import java.util.List;
 public class UserPrincipal implements UserDetails {
 
     private final String username;
-    private final String passwordHash;
+    private final Short loginCode;
     @lombok.Getter
     private final List<SimpleGrantedAuthority> roles;
 
 
-    private UserPrincipal (String username, String passwordHash, List<SimpleGrantedAuthority> roles){
+    private UserPrincipal (String username, Short loginCode, List<SimpleGrantedAuthority> roles){
         this.username = username;
-        this.passwordHash = passwordHash;
+        this.loginCode = loginCode;
         this.roles = roles;
     }
 
     public static UserPrincipal from(User user){
         List<SimpleGrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name())).toList();
-        return new UserPrincipal(user.getUsername(),user.getPasswordHash(),authorities);
+        return new UserPrincipal(user.getUsername(),user.getLoginCode().getCode(),authorities);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return this.passwordHash;
+        return this.loginCode.toString();
     }
 
     @Override
