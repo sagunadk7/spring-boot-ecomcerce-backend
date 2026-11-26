@@ -12,12 +12,12 @@ import java.util.List;
 public class UserPrincipal implements UserDetails {
 
     private final String username;
-    private final Short loginCode;
+    private final String loginCode;
     @lombok.Getter
     private final List<SimpleGrantedAuthority> roles;
 
 
-    private UserPrincipal (String username, Short loginCode, List<SimpleGrantedAuthority> roles){
+    private UserPrincipal (String username, String loginCode, List<SimpleGrantedAuthority> roles){
         this.username = username;
         this.loginCode = loginCode;
         this.roles = roles;

@@ -1,9 +1,20 @@
 package com.sagun.ecommerce_backend.service;
 
+import com.sagun.ecommerce_backend.customExceptions.UserNotFoundException;
+import com.sagun.ecommerce_backend.dto.LoginCodeResponseDTO;
+import com.sagun.ecommerce_backend.entity.LoginCode;
+import com.sagun.ecommerce_backend.entity.User;
 import com.sagun.ecommerce_backend.repository.LoginCodeRepository;
 import com.sagun.ecommerce_backend.repository.UserRepository;
+import com.sagun.ecommerce_backend.utils.LoginCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -11,6 +22,52 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final LoginCodeRepository loginCodeRepository;
+
+    @Transactional
+    public LoginCodeResponseDTO getCode(String phoneNumber){
+        if(phoneNumber == null || !phoneNumber.matches("\\d{10}")){
+            throw new IllegalArgumentException("Phone number must be exactly 10 digits");
+        }
+
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseGet(
+                () -> {
+                    User newUser = new User();
+                    newUser.setPhoneNumber(phoneNumber);
+                    return userRepository.save(newUser);
+                });
+        LocalDateTime now = LocalDateTime.now();
+        LoginCode loginCode = user.getLoginCode();
+
+        if(loginCode != null && loginCode.getExpiresAt() != null && loginCode.getExpiresAt().isAfter(now)){
+            long  millisLeft = Duration.between(now, loginCode.getExpiresAt()).toMillis();
+            long remainingSeconds = (long) Math.ceil(millisLeft/1000.0);
+            return new LoginCodeResponseDTO(
+                    "An active verification code sent successfully",
+                    loginCode.getCode(),
+                    loginCode.getExpiresAt(),
+                    remainingSeconds
+            );
+        }
+        if(loginCode == null ){
+           loginCode =  new LoginCode();
+           loginCode.setUser(user);
+           user.setLoginCode(loginCode);
+        }
+
+        String code = LoginCodeGenerator.generate();
+        LocalDateTime expiresAt = now.plusMinutes(5);
+        loginCode.setCode(code);
+        loginCode.setExpiresAt(expiresAt);
+        user.setLoginCode(loginCode);
+
+        return new LoginCodeResponseDTO(
+                "Verification code sent successfully",
+                code,
+                expiresAt,
+                300
+        );
+    }
+
 
 
 

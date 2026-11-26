@@ -6,9 +6,9 @@ public class LoginCodeGenerator {
 
     public static SecureRandom random = new SecureRandom();
 
-    public static Short generate(){
-        double code = 1000 + random.nextDouble(99999);
-        return (short) code;
+    public static String generate(){
+        int code = random.nextInt(99999);
+        return String.valueOf(code);
     }
 
 }

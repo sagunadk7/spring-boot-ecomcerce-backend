@@ -16,7 +16,7 @@ uniqueConstraints = {@UniqueConstraint(name= "uk_users_phone_number",columnNames
 @UniqueConstraint(name = "uk_users_username", columnNames = "username")})
 public class User extends BaseEntity {
 
-    @Column(name = "user_name", nullable = false,length = 50)
+    @Column(name = "user_name",length = 50)
     private String username;
 
     @Column(name = "phone_number",nullable = false)
@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     @CollectionTable(name="user_roles",joinColumns = @JoinColumn(name="user_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "role",nullable = false,length = 20)
-    private List<Role> roles = new ArrayList<>();
+    private List<Role> roles = List.of(Role.USER);
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
     private LoginCode loginCode;
