@@ -1,6 +1,8 @@
 package com.sagun.ecommerce_backend.controller;
 
 import com.sagun.ecommerce_backend.dto.LoginCodeResponseDTO;
+import com.sagun.ecommerce_backend.dto.VerifyOtpRequestDto;
+import com.sagun.ecommerce_backend.dto.VerifyOtpResponseDTO;
 import com.sagun.ecommerce_backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,11 @@ public class AuthController {
     public LoginCodeResponseDTO getCode(@RequestBody String phoneNumber){
         System.out.println("I am here");
         return service.getCode(phoneNumber);
+    }
+
+    @PostMapping("/verify-otp")
+    public VerifyOtpResponseDTO verifyOtp(@RequestBody VerifyOtpRequestDto requestDto){
+        return service.verifyToken(requestDto);
     }
 
 }

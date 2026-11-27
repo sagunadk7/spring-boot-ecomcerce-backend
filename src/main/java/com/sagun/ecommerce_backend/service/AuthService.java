@@ -1,20 +1,25 @@
 package com.sagun.ecommerce_backend.service;
 
+
 import com.sagun.ecommerce_backend.customExceptions.UserNotFoundException;
 import com.sagun.ecommerce_backend.dto.LoginCodeResponseDTO;
+import com.sagun.ecommerce_backend.dto.VerifyOtpRequestDto;
+import com.sagun.ecommerce_backend.dto.VerifyOtpResponseDTO;
 import com.sagun.ecommerce_backend.entity.LoginCode;
 import com.sagun.ecommerce_backend.entity.User;
 import com.sagun.ecommerce_backend.repository.LoginCodeRepository;
 import com.sagun.ecommerce_backend.repository.UserRepository;
+import com.sagun.ecommerce_backend.utils.JWTUtils;
 import com.sagun.ecommerce_backend.utils.LoginCodeGenerator;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final LoginCodeRepository loginCodeRepository;
+    private final JWTUtils jwtUtils;
 
     @Transactional
     public LoginCodeResponseDTO getCode(String phoneNumber){
@@ -66,6 +72,35 @@ public class AuthService {
                 expiresAt,
                 300
         );
+    }
+
+    public VerifyOtpResponseDTO verifyToken(VerifyOtpRequestDto requestDto){
+        String phoneNumber = requestDto.phoneNumber();
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> new UserNotFoundException("User does not exists"));
+        LoginCode loginCode = user.getLoginCode();
+        if(loginCode == null ){
+            try {
+                throw new BadRequestException("OTP is null");
+            } catch (BadRequestException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(!phoneNumber.equals(user.getPhoneNumber()) || !requestDto.otp().equals(loginCode.getCode())){
+            throw new RuntimeException("phone number or otp does not matches ");
+        }
+
+        if(loginCode.getExpiresAt().isBefore(LocalDateTime.now())){
+            user.setLoginCode(null);
+            userRepository.save(user);
+            throw new RuntimeException("OTP expired");
+        }
+
+        user.setLoginCode(null);
+        userRepository.save(user);
+        String accessToken = jwtUtils.generateToken(user.getPhoneNumber());
+        return new VerifyOtpResponseDTO(accessToken,Duration.ofMinutes(15).toSeconds());
+
+
     }
 
 

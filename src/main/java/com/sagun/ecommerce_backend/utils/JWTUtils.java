@@ -13,7 +13,7 @@ import java.util.Date;
 @Service
 public class JWTUtils {
 
-    private static int EXPIRATION_TIME = 1000*60*60;
+    private static int EXPIRATION_TIME = 1000*60*15;
     private static final String SECRET_KEY = "MY_KWY_ICHN_DFHAKJH9R98WYE8R+3274823@__EIFAE_IAM_GOING";
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 

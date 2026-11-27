@@ -5,7 +5,7 @@ import java.util.Date;
 
 public record LoginCodeResponseDTO (
   String message,
-  String code,
+  String otp,
   LocalDateTime expiresAt,
   long expiresInSeconds
 ){}
