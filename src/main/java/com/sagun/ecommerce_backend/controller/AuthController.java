@@ -4,7 +4,9 @@ import com.sagun.ecommerce_backend.dto.LoginCodeResponseDTO;
 import com.sagun.ecommerce_backend.dto.VerifyOtpRequestDto;
 import com.sagun.ecommerce_backend.dto.VerifyOtpResponseDTO;
 import com.sagun.ecommerce_backend.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,13 +20,12 @@ public class AuthController {
     private final AuthService service;
 
     @PostMapping("/get-code")
-    public LoginCodeResponseDTO getCode(@RequestBody String phoneNumber){
-        System.out.println("I am here");
+    public LoginCodeResponseDTO getCode(@Valid @RequestBody String phoneNumber){
         return service.getCode(phoneNumber);
     }
 
     @PostMapping("/verify-otp")
-    public VerifyOtpResponseDTO verifyOtp(@RequestBody VerifyOtpRequestDto requestDto){
+    public VerifyOtpResponseDTO verifyOtp(@Valid @RequestBody VerifyOtpRequestDto requestDto){
         return service.verifyToken(requestDto);
     }
 
